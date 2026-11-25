@@ -1,0 +1,28 @@
+Part E: Reflection Questions
+
+1. What would happen if I forgot @Retention(RetentionPolicy.RUNTIME)?
+Without it, the annotation gets the default retention, CLASS. The compiler writes it into the
+.class file, but the JVM discards it when the class is loaded. Reflection can only see
+annotations that are kept at runtime, so getAnnotation() and isAnnotationPresent() would
+return null/false. Every class would be "Skipped", no values would be injected, no @Range
+violations would be found, and every route would return 404, all without a compile error.
+
+2. Mapping to Spring Boot, and something real Spring does that CampusBoot does not.
+@Component -> Spring's @Component (and @Service, @Repository, @Controller).
+@Value     -> Spring's @Value("${app.name}"), which reads from application.properties/yml.
+@Range     -> Bean Validation (Jakarta Validation) constraints such as @Min/@Max or @Range,
+              triggered by @Valid.
+@Route     -> Spring MVC's @GetMapping / @RequestMapping.
+Real Spring does dependency injection between beans (@Autowired / constructor injection),
+so one bean can receive another and the container resolves the dependency graph. CampusBoot
+only creates independent objects with no-arg constructors. Spring also scans packages
+automatically, supports singleton/prototype scopes, and runs a real web server with HTTP
+methods, parameters and JSON conversion.
+
+3. Why is setAccessible(true) both powerful and risky?
+It is powerful because it lets reflection read and write private fields and call private
+methods, which is how frameworks inject values into private fields without needing setters.
+It is risky because it bypasses encapsulation: code can change internal state that the class
+author meant to protect, break invariants, and create tight coupling to private details that
+may change. It can also be a security problem, which is why Java 9+ modules (and strong
+encapsulation in newer versions) can block it with InaccessibleObjectException.
